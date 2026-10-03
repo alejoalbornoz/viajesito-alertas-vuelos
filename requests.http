@@ -1,0 +1,86 @@
+### Viajesito — llamadas de ejemplo (REST Client de VS Code / HTTP Client de IntelliJ)
+@base = http://localhost:8080
+# Si definiste APP_API_KEY en el .env, completala acá:
+@apiKey =
+
+### Listar rutas (opcional: ?active=true)
+GET {{base}}/api/routes
+X-Api-Key: {{apiKey}}
+
+### Crear ruta
+POST {{base}}/api/routes
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "origin": "EZE",
+  "destination": "BCN",
+  "departureDate": "2027-04-10",
+  "returnDate": "2027-04-28",
+  "currency": "USD",
+  "targetPriceMin": 850,
+  "targetPriceMax": 1050,
+  "notes": "Semana Santa en Barcelona"
+}
+
+### Modificar ruta (reemplazo completo)
+PUT {{base}}/api/routes/1
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "origin": "EZE",
+  "destination": "MAD",
+  "departureDate": "2027-02-01",
+  "returnDate": "2027-02-20",
+  "targetPriceMax": 1000
+}
+
+### Pausar / reanudar
+POST {{base}}/api/routes/1/pause
+X-Api-Key: {{apiKey}}
+
+###
+POST {{base}}/api/routes/1/resume
+X-Api-Key: {{apiKey}}
+
+### Borrar ruta (borra también su histórico y alertas)
+DELETE {{base}}/api/routes/1
+X-Api-Key: {{apiKey}}
+
+### Últimos precios de una ruta
+GET {{base}}/api/routes/1/prices?limit=20
+X-Api-Key: {{apiKey}}
+
+### Resumen estadístico
+GET {{base}}/api/routes/1/stats
+X-Api-Key: {{apiKey}}
+
+### Historial de alertas (opcional: ?routeId=1&limit=20)
+GET {{base}}/api/alerts
+X-Api-Key: {{apiKey}}
+
+### Probar el bot de Telegram
+POST {{base}}/api/telegram/test
+X-Api-Key: {{apiKey}}
+
+### Simular una alerta (lo que envía el analizador Python)
+POST {{base}}/api/alerts
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "routeId": 1,
+  "price": 980,
+  "currency": "USD",
+  "airline": "Iberia",
+  "stops": 0,
+  "alertType": "BELOW_AVERAGE",
+  "reasons": ["BELOW_AVERAGE", "TARGET_PRICE"],
+  "averagePrice": 1250,
+  "medianPrice": 1230,
+  "minPrice": 1010,
+  "savingsPct": 21.6,
+  "sampleSize": 40,
+  "trend": "DOWN"
+}

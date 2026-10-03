@@ -1,0 +1,9 @@
+[project]
+name = "vigia"
+version = "0.1.0"
+description = "Vigía y analista de precios de vuelos"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

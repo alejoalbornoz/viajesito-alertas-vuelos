@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: viajesito-backend
+  config:
+    # En local reutiliza el .env de la raíz del proyecto (en Docker no existe y se ignora).
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:../.env[.properties]
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:viajesito}
+    username: ${POSTGRES_USER:viajesito}
+    password: ${POSTGRES_PASSWORD:viajesito}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # El esquema lo define db/init/01_schema.sql; Hibernate solo verifica que coincida.
+      ddl-auto: validate
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN:}
+  chat-id: ${TELEGRAM_CHAT_ID:}
+  api-url: https://api.telegram.org
+
+alerts:
+  cooldown-hours: ${ALERT_COOLDOWN_HOURS:72}
+  min-improvement-pct: ${ALERT_MIN_IMPROVEMENT_PCT:3}
+
+app:
+  api-key: ${APP_API_KEY:}
