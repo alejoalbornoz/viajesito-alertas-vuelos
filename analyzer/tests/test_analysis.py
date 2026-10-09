@@ -6,6 +6,7 @@ import pytest
 from vigia.analysis import (
     ANOMALY,
     BELOW_AVERAGE,
+    GOOGLE_LOW,
     HISTORICAL_MIN,
     TARGET_PRICE,
     TREND_DOWN,
@@ -104,6 +105,22 @@ def test_same_day_samples_are_excluded_from_baseline():
     ev = evaluate(700, df, as_of=today)
     assert ev.stats.sample_size == 6
     assert HISTORICAL_MIN in ev.reasons
+
+
+def test_google_low_works_without_history():
+    ev = evaluate(300, history([]), google_price_level="low")
+    assert ev.reasons == [GOOGLE_LOW]
+
+
+def test_google_typical_or_high_is_not_a_signal():
+    assert not evaluate(300, history([]), google_price_level="typical").is_deal
+    assert not evaluate(300, history([]), google_price_level="high").is_deal
+
+
+def test_google_low_goes_after_statistical_signals():
+    ev = evaluate(700, history([1000, 1020, 980, 1010, 990, 1000]), target_price_max=750,
+                  google_price_level="low")
+    assert ev.reasons == [HISTORICAL_MIN, ANOMALY, BELOW_AVERAGE, GOOGLE_LOW, TARGET_PRICE]
 
 
 def test_target_price_works_without_history():

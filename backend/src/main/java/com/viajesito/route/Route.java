@@ -21,10 +21,11 @@ public class Route {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false, length = 3)
+	/** Uno o más códigos IATA separados por coma: "EZE" o "EZE,AEP". */
+	@Column(nullable = false, length = 15)
 	private String origin;
 
-	@Column(nullable = false, length = 3)
+	@Column(nullable = false, length = 15)
 	private String destination;
 
 	@Column(nullable = false)

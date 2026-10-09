@@ -37,6 +37,22 @@ public class PricePoint {
 	@Column(nullable = false)
 	private String source;
 
+	@Column(length = 3)
+	private String departureAirport;
+
+	@Column(length = 3)
+	private String arrivalAirport;
+
+	/** Opinión de Google Flights sobre la búsqueda: low, typical o high. */
+	@Column(length = 10)
+	private String googlePriceLevel;
+
+	@Column(precision = 10, scale = 2)
+	private BigDecimal googleTypicalLow;
+
+	@Column(precision = 10, scale = 2)
+	private BigDecimal googleTypicalHigh;
+
 	@Column(nullable = false)
 	private OffsetDateTime checkedAt;
 
@@ -73,6 +89,26 @@ public class PricePoint {
 
 	public String getSource() {
 		return source;
+	}
+
+	public String getDepartureAirport() {
+		return departureAirport;
+	}
+
+	public String getArrivalAirport() {
+		return arrivalAirport;
+	}
+
+	public String getGooglePriceLevel() {
+		return googlePriceLevel;
+	}
+
+	public BigDecimal getGoogleTypicalLow() {
+		return googleTypicalLow;
+	}
+
+	public BigDecimal getGoogleTypicalHigh() {
+		return googleTypicalHigh;
 	}
 
 	public OffsetDateTime getCheckedAt() {

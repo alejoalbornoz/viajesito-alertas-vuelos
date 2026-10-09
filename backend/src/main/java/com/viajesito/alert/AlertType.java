@@ -6,6 +6,7 @@ public enum AlertType {
 	HISTORICAL_MIN("¡Mínimo histórico!"),
 	ANOMALY("¡Precio anómalo!"),
 	BELOW_AVERAGE("¡Oferta detectada!"),
+	GOOGLE_LOW("¡Precio bajo según Google!"),
 	TARGET_PRICE("Precio dentro de tu objetivo");
 
 	private final String headline;

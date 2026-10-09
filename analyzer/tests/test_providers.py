@@ -28,16 +28,21 @@ def test_mock_prices_are_plausible():
     assert quote.source == "mock"
 
 
+def seg(airline, dep, arr):
+    return {"airline": airline, "departure_airport": {"id": dep}, "arrival_airport": {"id": arr}}
+
+
 SERPAPI_SAMPLE = {
     "best_flights": [
         {"price": 1250, "total_duration": 780,
-         "flights": [{"airline": "Iberia"}]},
+         "flights": [seg("Iberia", "EZE", "MAD")]},
     ],
     "other_flights": [
         {"price": 1032, "total_duration": 1105,
-         "flights": [{"airline": "LATAM"}, {"airline": "LATAM"}, {"airline": "Iberia"}]},
-        {"total_duration": 900, "flights": [{"airline": "Sin precio"}]},
+         "flights": [seg("LATAM", "AEP", "GRU"), seg("LATAM", "GRU", "LIS"), seg("Iberia", "LIS", "MAD")]},
+        {"total_duration": 900, "flights": [seg("Sin precio", "EZE", "MAD")]},
     ],
+    "price_insights": {"lowest_price": 1032, "price_level": "typical", "typical_price_range": [950, 1300]},
 }
 
 
@@ -48,6 +53,29 @@ def test_parse_serpapi_picks_cheapest_option():
     assert quote.stops == 2
     assert quote.duration_minutes == 1105
     assert quote.source == "serpapi"
+    assert (quote.departure_airport, quote.arrival_airport) == ("AEP", "MAD")
+
+
+def test_parse_serpapi_google_insights():
+    quote = parse_response(SERPAPI_SAMPLE, "USD")
+    assert quote.google_price_level == "typical"
+    assert (quote.google_typical_low, quote.google_typical_high) == (950, 1300)
+
+    bare = parse_response({"best_flights": SERPAPI_SAMPLE["best_flights"]}, "USD")
+    assert bare.google_price_level is None
+    assert bare.google_typical_low is None
+
+
+def test_serpapi_multi_airport_origin_is_sent_as_is():
+    session = FakeSession(FakeResponse(200, SERPAPI_SAMPLE))
+    SerpApiProvider("secret", session=session).fetch_lowest(replace(ROUTE, origin="EZE,AEP"))
+    assert session.calls[0]["departure_id"] == "EZE,AEP"
+
+
+def test_mock_picks_one_of_the_route_airports():
+    quote = simulate_quote(replace(ROUTE, origin="EZE,AEP"), datetime(2026, 10, 2, tzinfo=timezone.utc))
+    assert quote.departure_airport in {"EZE", "AEP"}
+    assert quote.arrival_airport == "MAD"
 
 
 def test_parse_serpapi_respects_max_stops():

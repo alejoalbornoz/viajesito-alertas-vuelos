@@ -24,7 +24,8 @@ class Route:
         trip = f"{self.departure_date:%d/%m/%Y}"
         if self.return_date:
             trip += f" - {self.return_date:%d/%m/%Y}"
-        return f"#{self.id} {self.origin}→{self.destination} ({trip})"
+        # origin/destination pueden ser varios aeropuertos: "EZE,AEP"
+        return f"#{self.id} {self.origin.replace(',', '/')}→{self.destination.replace(',', '/')} ({trip})"
 
 
 @dataclass(frozen=True)
@@ -37,3 +38,9 @@ class FlightQuote:
     airline: str | None = None
     stops: int | None = None
     duration_minutes: int | None = None
+    departure_airport: str | None = None  # útil cuando la ruta tiene varios aeropuertos
+    arrival_airport: str | None = None
+    # Contexto que Google Flights da para la búsqueda (sin costo extra)
+    google_price_level: str | None = None  # low | typical | high
+    google_typical_low: float | None = None
+    google_typical_high: float | None = None

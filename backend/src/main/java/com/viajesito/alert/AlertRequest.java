@@ -24,7 +24,12 @@ public record AlertRequest(
 		BigDecimal savingsPct,
 		BigDecimal zscore,
 		Integer sampleSize,
-		String trend) {
+		String trend,
+		String departureAirport,
+		String arrivalAirport,
+		String googlePriceLevel,
+		BigDecimal googleTypicalLow,
+		BigDecimal googleTypicalHigh) {
 
 	boolean has(AlertType type) {
 		return reasons.contains(type);

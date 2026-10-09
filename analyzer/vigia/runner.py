@@ -55,12 +55,12 @@ def _process_route(conn, route: Route, provider: PriceProvider, notifier: Notifi
         summary.saved += 1
 
     ev = analysis.evaluate(quote.price, history, route.target_price_max, settings.analysis,
-                           as_of=datetime.now(timezone.utc))
+                           as_of=datetime.now(timezone.utc), google_price_level=quote.google_price_level)
     s = ev.stats
-    log.info("%s: %s %.2f (%s) | n=%d prom=%s mín=%s tendencia=%s",
-             route.label, quote.currency, quote.price, quote.airline or "?", s.sample_size,
-             f"{s.mean:.2f}" if s.mean is not None else "-",
-             f"{s.min:.2f}" if s.min is not None else "-", s.trend or "-")
+    log.info("%s: %s %.2f (%s, sale de %s) | n=%d prom=%s mín=%s tendencia=%s google=%s",
+             route.label, quote.currency, quote.price, quote.airline or "?", quote.departure_airport or "?",
+             s.sample_size, f"{s.mean:.2f}" if s.mean is not None else "-",
+             f"{s.min:.2f}" if s.min is not None else "-", s.trend or "-", quote.google_price_level or "-")
 
     if ev.is_deal:
         summary.deals += 1

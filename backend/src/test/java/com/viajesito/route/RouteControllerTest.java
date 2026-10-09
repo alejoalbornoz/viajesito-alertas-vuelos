@@ -54,6 +54,28 @@ class RouteControllerTest {
 	}
 
 	@Test
+	void acceptsSeveralAirportsAndNormalizesThem() throws Exception {
+		given(repository.save(any(Route.class))).willAnswer(inv -> inv.getArgument(0));
+		String departure = LocalDate.now().plusDays(60).toString();
+
+		mvc.perform(post("/api/routes").contentType(MediaType.APPLICATION_JSON).content("""
+				{"origin": " eze , aep ", "destination": "gig", "departureDate": "%s"}
+				""".formatted(departure)))
+			.andExpect(status().isCreated())
+			.andExpect(jsonPath("$.origin").value("EZE,AEP"))
+			.andExpect(jsonPath("$.destination").value("GIG"));
+	}
+
+	@Test
+	void rejectsOverlappingAirports() throws Exception {
+		mvc.perform(post("/api/routes").contentType(MediaType.APPLICATION_JSON).content("""
+				{"origin": "EZE,AEP", "destination": "AEP", "departureDate": "2027-02-10"}
+				"""))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.errors.distinctAirports").exists());
+	}
+
+	@Test
 	void rejectsInvalidRoute() throws Exception {
 		mvc.perform(post("/api/routes").contentType(MediaType.APPLICATION_JSON).content("""
 				{"origin": "EZEIZA", "destination": "MAD", "departureDate": "2027-02-10",

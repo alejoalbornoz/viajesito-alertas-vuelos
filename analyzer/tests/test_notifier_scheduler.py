@@ -22,6 +22,7 @@ def test_payload_shape():
     assert payload["alertType"] == "TARGET_PRICE"
     assert payload["reasons"] == ["TARGET_PRICE"]
     assert payload["averagePrice"] is None
+    assert "googlePriceLevel" in payload and "departureAirport" in payload
 
 
 class FakeResponse:

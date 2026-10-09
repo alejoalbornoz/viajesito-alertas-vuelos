@@ -82,8 +82,10 @@ def route_ids_checked_since(conn: psycopg.Connection, source: str, since: dateti
 
 
 _INSERT_PRICE = """
-    INSERT INTO price_history (route_id, price, currency, airline, stops, duration_minutes, source, checked_at)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, COALESCE(%s, now()))
+    INSERT INTO price_history (route_id, price, currency, airline, stops, duration_minutes, source,
+                               departure_airport, arrival_airport,
+                               google_price_level, google_typical_low, google_typical_high, checked_at)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, COALESCE(%s, now()))
     RETURNING id
 """
 
@@ -97,6 +99,11 @@ def _price_params(route_id: int, quote: FlightQuote, checked_at: datetime | None
         quote.stops,
         quote.duration_minutes,
         quote.source,
+        quote.departure_airport,
+        quote.arrival_airport,
+        quote.google_price_level,
+        quote.google_typical_low,
+        quote.google_typical_high,
         checked_at,
     )
 

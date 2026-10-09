@@ -8,8 +8,8 @@
 -- Rutas a monitorear ---------------------------------------------------
 CREATE TABLE routes (
     id                BIGSERIAL     PRIMARY KEY,
-    origin            VARCHAR(3)    NOT NULL,              -- IATA (EZE)
-    destination       VARCHAR(3)    NOT NULL,              -- IATA (MAD)
+    origin            VARCHAR(15)   NOT NULL,              -- IATA: "EZE" o varios "EZE,AEP"
+    destination       VARCHAR(15)   NOT NULL,              -- IATA: "MAD"
     departure_date    DATE          NOT NULL,
     return_date       DATE,                                -- NULL = solo ida
     adults            INTEGER       NOT NULL DEFAULT 1,
@@ -22,8 +22,8 @@ CREATE TABLE routes (
     created_at        TIMESTAMPTZ   NOT NULL DEFAULT now(),
     updated_at        TIMESTAMPTZ   NOT NULL DEFAULT now(),
 
-    CONSTRAINT routes_origin_iata      CHECK (origin ~ '^[A-Z]{3}$'),
-    CONSTRAINT routes_destination_iata CHECK (destination ~ '^[A-Z]{3}$'),
+    CONSTRAINT routes_origin_iata      CHECK (origin ~ '^[A-Z]{3}(,[A-Z]{3}){0,3}$'),
+    CONSTRAINT routes_destination_iata CHECK (destination ~ '^[A-Z]{3}(,[A-Z]{3}){0,3}$'),
     CONSTRAINT routes_distinct_airports CHECK (origin <> destination),
     CONSTRAINT routes_return_after_departure CHECK (return_date IS NULL OR return_date >= departure_date),
     CONSTRAINT routes_adults_positive  CHECK (adults BETWEEN 1 AND 9),
@@ -44,6 +44,11 @@ CREATE TABLE price_history (
     stops             INTEGER,
     duration_minutes  INTEGER,
     source            VARCHAR(50)   NOT NULL,              -- proveedor: mock, serpapi, ...
+    departure_airport VARCHAR(3),                          -- aeropuerto concreto del vuelo más barato
+    arrival_airport   VARCHAR(3),
+    google_price_level  VARCHAR(10),                       -- opinión de Google Flights: low, typical, high
+    google_typical_low  NUMERIC(10,2),                     -- rango de precio "normal" según Google
+    google_typical_high NUMERIC(10,2),
     checked_at        TIMESTAMPTZ   NOT NULL DEFAULT now()
 );
 

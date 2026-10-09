@@ -118,9 +118,12 @@ El analizador ([analysis.py](analyzer/vigia/analysis.py)) reduce el histórico a
 | `HISTORICAL_MIN` | precio ≤ mínimo histórico **y** ahorro ≥ `MIN_SAVINGS_PCT` | `MIN_SAVINGS_PCT=5` |
 | `ANOMALY` | z-score ≤ −`ZSCORE_THRESHOLD` **y** ahorro ≥ `MIN_SAVINGS_PCT` | `ZSCORE_THRESHOLD=2.0` |
 | `BELOW_AVERAGE` | precio al menos X% por debajo del promedio | `DEAL_THRESHOLD_PCT=15` |
+| `GOOGLE_LOW` | Google Flights califica el precio como **bajo** (no requiere histórico) | — |
 | `TARGET_PRICE` | precio ≤ `target_price_max` de la ruta (no requiere histórico) | por ruta |
 
 Las tres primeras se activan recién con `MIN_SAMPLES` días de histórico (5 por defecto).
+Con SerpApi, cada sondeo guarda además la opinión de Google (nivel bajo/típico/alto y rango de precio
+normal), que se muestra en todas las alertas.
 El ahorro mínimo evita que una ruta muy estable dispare "mínimo histórico" por bajar 3 dólares.
 También se calcula mediana, desvío, coeficiente de variación y la **tendencia** de los últimos 14 días
 (regresión lineal con `numpy.polyfit`).
@@ -164,6 +167,8 @@ Ruta de ejemplo:
 ```
 
 `returnDate` vacío = solo ida. `targetPriceMax` es el umbral "me sirve" y `targetPriceMin` el "precio soñado".
+`maxStops: 0` = solo vuelos directos. `origin` y `destination` aceptan hasta 4 aeropuertos separados por coma
+(`"EZE,AEP"`): se busca el más barato entre todos **con una sola búsqueda**, y la alerta dice de cuál sale.
 
 **Seguridad:** si definís `APP_API_KEY` en el `.env`, todas las rutas `/api/**` exigen el header
 `X-Api-Key` (el analizador lo manda solo). El backend está pensado para uso local: no lo expongas a internet.
@@ -254,5 +259,6 @@ viajesito/
 | Re-crear la base desde cero (**borra todo**) | `docker compose down -v` y después `docker compose up -d` |
 | Aplicar cambios de código | `docker compose up -d --build` |
 
-El esquema se aplica solo al crear el volumen. Si cambiás `db/init/01_schema.sql` con datos que querés
-conservar, aplicá el `ALTER TABLE` a mano. El backend valida al arrancar que el esquema coincida con las entidades.
+El esquema se aplica solo al crear el volumen. Los cambios posteriores están en `db/migrations/`, en orden
+de fecha: si tu base es anterior a una migración, aplicala una vez (cada archivo dice cómo). El backend
+valida al arrancar que el esquema coincida con las entidades.

@@ -63,6 +63,8 @@ def simulate_quote(route: Route, at: datetime) -> FlightQuote:
         airline=rng.choice(_AIRLINES),
         stops=stops,
         duration_minutes=int(rng.uniform(120, 900) + stops * 150),
+        departure_airport=rng.choice(route.origin.split(",")),
+        arrival_airport=rng.choice(route.destination.split(",")),
     )
 
 

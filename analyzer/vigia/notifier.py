@@ -48,6 +48,11 @@ def build_alert_payload(route: Route, quote: FlightQuote, price_history_id: int 
         "zscore": _round(ev.zscore),
         "sampleSize": s.sample_size,
         "trend": s.trend,
+        "departureAirport": quote.departure_airport,
+        "arrivalAirport": quote.arrival_airport,
+        "googlePriceLevel": quote.google_price_level,
+        "googleTypicalLow": _round(quote.google_typical_low),
+        "googleTypicalHigh": _round(quote.google_typical_high),
     }
 
 

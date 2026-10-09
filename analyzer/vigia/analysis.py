@@ -17,7 +17,10 @@ from .config import AnalysisConfig
 HISTORICAL_MIN = "HISTORICAL_MIN"
 ANOMALY = "ANOMALY"
 BELOW_AVERAGE = "BELOW_AVERAGE"
+GOOGLE_LOW = "GOOGLE_LOW"
 TARGET_PRICE = "TARGET_PRICE"
+
+GOOGLE_LEVEL_LOW = "low"
 
 TREND_DOWN = "DOWN"
 TREND_UP = "UP"
@@ -129,9 +132,11 @@ def evaluate(
     target_price_max: float | None = None,
     config: AnalysisConfig | None = None,
     as_of: datetime | None = None,
+    google_price_level: str | None = None,
 ) -> Evaluation:
     """Compara un precio nuevo contra el histórico previo. Con `as_of`, ignora
-    los sondeos del mismo día."""
+    los sondeos del mismo día. `google_price_level` es la opinión de Google Flights
+    sobre la búsqueda: no depende de nuestro histórico, así que sirve desde el día 1."""
     config = config or AnalysisConfig()
     if as_of is not None:
         history = prior_days(history, as_of)
@@ -155,6 +160,8 @@ def evaluate(
         if savings_pct >= config.deal_threshold_pct:
             reasons.append(BELOW_AVERAGE)
 
+    if google_price_level == GOOGLE_LEVEL_LOW:
+        reasons.append(GOOGLE_LOW)
     if target_price_max is not None and price <= target_price_max:
         reasons.append(TARGET_PRICE)
 

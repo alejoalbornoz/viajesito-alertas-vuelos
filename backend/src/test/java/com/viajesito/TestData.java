@@ -30,7 +30,8 @@ public final class TestData {
 		return new AlertRequest(1L, 42L, new BigDecimal(price), "USD", "Iberia", 1, AlertType.HISTORICAL_MIN,
 				List.of(AlertType.HISTORICAL_MIN, AlertType.BELOW_AVERAGE, AlertType.TARGET_PRICE),
 				new BigDecimal("1300.00"), new BigDecimal("1280.00"), new BigDecimal("1150.00"), new BigDecimal("20.77"),
-				new BigDecimal("-2.4"), 30, "DOWN");
+				new BigDecimal("-2.4"), 30, "DOWN", "EZE", "MAD", "typical", new BigDecimal("1100"),
+				new BigDecimal("1400"));
 	}
 
 }

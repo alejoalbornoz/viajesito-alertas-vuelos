@@ -30,6 +30,10 @@ def parse_response(data: dict, currency: str, max_stops: int | None = None) -> F
     best = min(priced, key=lambda o: o["price"])
     segments = best.get("flights") or []
     airlines = list(dict.fromkeys(s["airline"] for s in segments if s.get("airline")))
+    insights = data.get("price_insights") or {}
+    level = insights.get("price_level")
+    typical = insights.get("typical_price_range") or []
+    has_range = len(typical) == 2 and all(isinstance(v, (int, float)) for v in typical)
     return FlightQuote(
         price=float(best["price"]),
         currency=currency,
@@ -37,6 +41,11 @@ def parse_response(data: dict, currency: str, max_stops: int | None = None) -> F
         airline=" / ".join(airlines) or None,
         stops=len(segments) - 1 if segments else None,
         duration_minutes=best.get("total_duration"),
+        departure_airport=(segments[0].get("departure_airport") or {}).get("id") if segments else None,
+        arrival_airport=(segments[-1].get("arrival_airport") or {}).get("id") if segments else None,
+        google_price_level=level if level in {"low", "typical", "high"} else None,
+        google_typical_low=float(typical[0]) if has_range else None,
+        google_typical_high=float(typical[1]) if has_range else None,
     )
 
 
@@ -51,7 +60,7 @@ class SerpApiProvider:
     def _params(self, route: Route) -> dict:
         params = {
             "engine": "google_flights",
-            "departure_id": route.origin,
+            "departure_id": route.origin,  # admite varios aeropuertos: "EZE,AEP"
             "arrival_id": route.destination,
             "outbound_date": route.departure_date.isoformat(),
             "type": "1" if route.return_date else "2",  # 1 = ida y vuelta, 2 = solo ida
